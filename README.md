@@ -37,11 +37,3 @@ Built using Google Gemini Vision capabilities and deployed as an interactive Str
    - Cooking instructions
    - Health and nutrition summary
 
----
-
-## 🔐 Environment Variables
-
-Create a `.env` file locally (not required on Streamlit Cloud):
-
-```env
-GOOGLE_API_KEY=your_google_gemini_api_key
