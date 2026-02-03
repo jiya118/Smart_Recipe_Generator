@@ -10,22 +10,10 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 #Gemini respons function
-def get_response(input_promt, image):
+def get_response(input_prompt, image):
     model = genai.GenerativeModel("gemini-1.5-flash")
-    response = model.generate_content([input_promt, image[0]])
+    response = model.generate_content([input_prompt, image])
     return response.text.strip()
-
-#image handling function
-def handle_image(uploaded_file):
-    if uploaded_file is not None:
-        byte_data = uploaded_file.getvalue()
-        image_parts = [{
-            "mime_type" : uploaded_file.type,
-            "data" : byte_data
-        }]
-        return image_parts
-    else:
-        raise FileNotFoundError("No file uploaded")
     
 # Streamlit app
 st.set_page_config(page_title="Recipe generator", page_icon=":robot_face:")
@@ -39,7 +27,7 @@ if uploaded_file is not None:
 
 submit = st.button("Get Recipe")
 
-input_promt = """Analyze the image of the ingredients and provide a detailed recipe of a dish that can be made using them.Provide inegredient preparation steps and cooking instructions in step-by-step format.   
+input_promt = """Analyze the uploaded image of food ingredients visible and provide a detailed recipe of a dish that can be made using them. Provide inegredient preparation steps and cooking instructions in step-by-step format.   
 ......
 Finally you can mention whether the meal is healthy or not and provide a brief summary of the overall nutritional value of the meal."""
 
@@ -47,9 +35,12 @@ if submit:
     if uploaded_file is None:
         st.warning("Please upload an image of ingredients first.")
     else:
-        input_image = handle_image(uploaded_file)
-        response = get_response(input_promt, input_image)
-        st.header("Response from Gemini:")
-        st.write(response)
+        response = get_response(input_promt, image)
+
+        if not response:
+            st.error("No response generated. Try another image.")
+        else:
+            st.header("Response from Gemini:")
+            st.write(response)
 
 user_input = st.text_input("")
