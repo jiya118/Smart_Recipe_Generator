@@ -1,50 +1,61 @@
-import google.generativeai as genai
-import os
-from dotenv import load_dotenv
 import streamlit as st
+import google.generativeai as genai
 from PIL import Image
+import sys
 
-# # Load environment variables from .env file
-# load_dotenv()
-# # Set up Google Generative AI API key
-# genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# ---- STREAMLIT CONFIG ----
+st.set_page_config(page_title="Recipe Generator", page_icon="🍳")
 
+# ---- DEBUG (remove later if you want) ----
+st.write("Python:", sys.version)
+
+# ---- CONFIGURE GEMINI ----
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
-#Gemini respons function
-def get_response(input_prompt, image):
+# ---- GEMINI FUNCTION ----
+def get_response(prompt, image):
     model = genai.GenerativeModel("models/gemini-1.5-flash")
-    response = model.generate_content([input_prompt, image])
-    return response.text.strip()
-    
-# Streamlit app
-st.set_page_config(page_title="Recipe generator", page_icon=":robot_face:")
-st.header("Recipe Generator")
-uploaded_file = st.file_uploader("Upload image of Ingredients", type=["jpg","jpeg","png"])
-image = " "
-if uploaded_file is not None:
-    st.write("File uploaded successfully!")
+    response = model.generate_content(
+        [prompt, image],
+        generation_config={"temperature": 0.4}
+    )
+    return response.text
+
+# ---- UI ----
+st.title("🍳 Smart Recipe Generator")
+
+uploaded_file = st.file_uploader(
+    "Upload an image of ingredients",
+    type=["jpg", "jpeg", "png"]
+)
+
+prompt = """
+Analyze the image of food ingredients.
+Create ONE detailed recipe that can be made using them.
+
+Include:
+1. Dish name
+2. Ingredients list
+3. Step-by-step cooking instructions
+4. Healthiness and nutrition summary
+"""
+
+if uploaded_file:
     image = Image.open(uploaded_file)
-    st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
+    st.image(image, caption="Uploaded Image", use_container_width=True)
 
-submit = st.button("Get Recipe")
+    if st.button("Get Recipe"):
+        with st.spinner("Cooking something tasty..."):
+            try:
+                result = get_response(prompt, image)
 
-input_promt = """Analyze the uploaded image of food ingredients visible and provide a detailed recipe of a dish that can be made using them. Provide inegredient preparation steps and cooking instructions in step-by-step format.   
-......
-Finally you can mention whether the meal is healthy or not and provide a brief summary of the overall nutritional value of the meal."""
+                if not result or not result.strip():
+                    st.error("No response generated. Try another image.")
+                else:
+                    st.subheader("🍽 Recipe")
+                    st.write(result)
 
-if submit:
-    if uploaded_file is None:
-        st.warning("Please upload an image of ingredients first.")
-    else:
-        response = get_response(input_promt, image)
-
-        if not response:
-            st.error("No response generated. Try another image.")
-        else:
-            st.header("Response from Gemini:")
-            st.write(response)
-
-user_input = st.text_input("")
-
+            except Exception as e:
+                st.error("Gemini failed to respond.")
+                st.exception(e)
 
