@@ -4,10 +4,12 @@ from dotenv import load_dotenv
 import streamlit as st
 from PIL import Image
 
-# Load environment variables from .env file
-load_dotenv()
-# Set up Google Generative AI API key
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# # Load environment variables from .env file
+# load_dotenv()
+# # Set up Google Generative AI API key
+# genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
 #Gemini respons function
 def get_response(input_prompt, image):
@@ -44,3 +46,4 @@ if submit:
             st.write(response)
 
 user_input = st.text_input("")
+
