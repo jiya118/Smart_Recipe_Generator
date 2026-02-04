@@ -13,7 +13,7 @@ genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
 #Gemini respons function
 def get_response(input_prompt, image):
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("models/gemini-1.5-flash")
     response = model.generate_content([input_prompt, image])
     return response.text.strip()
     
@@ -46,4 +46,5 @@ if submit:
             st.write(response)
 
 user_input = st.text_input("")
+
 
