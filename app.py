@@ -14,7 +14,7 @@ genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
 # ---- GEMINI FUNCTION ----
 def get_response(prompt, image):
-    model = genai.GenerativeModel("models/gemini-1.5-flash")
+    model = genai.GenerativeModel("models/gemini-1.0-pro-vision-latest")
     response = model.generate_content(
         [prompt, image],
         generation_config={"temperature": 0.4}
@@ -58,4 +58,5 @@ if uploaded_file:
             except Exception as e:
                 st.error("Gemini failed to respond.")
                 st.exception(e)
+
 
